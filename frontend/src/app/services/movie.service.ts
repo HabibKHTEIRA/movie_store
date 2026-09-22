@@ -3,6 +3,7 @@ import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { Movie, MovieDetail, MoviePageResponse } from '../models/movie.model';
 import { ClientIdService } from './client-id.service';
+import { environment } from '../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
@@ -10,7 +11,7 @@ import { ClientIdService } from './client-id.service';
 export class MovieService {
   private http = inject(HttpClient);
   private clientIdService = inject(ClientIdService);
-  private readonly API_URL = 'http://localhost:8080/api/movies';
+  private readonly API_URL = `${environment.apiUrl}/movies`;
 
   getMovies(
     search?: string,

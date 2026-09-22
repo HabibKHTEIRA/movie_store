@@ -2,6 +2,7 @@ import { Injectable, inject, signal } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable, tap } from 'rxjs';
 import { AdminStats, Movie, MoviePageResponse } from '../models/movie.model';
+import { environment } from '../../environments/environment';
 
 interface AuthResponse {
   token: string;
@@ -16,7 +17,7 @@ interface AuthResponse {
 export class AuthService {
   private http = inject(HttpClient);
   private readonly TOKEN_KEY = 'cinestore_admin_jwt';
-  private readonly BASE_ADMIN_URL = 'http://localhost:8080/api/admin';
+  private readonly BASE_ADMIN_URL = `${environment.apiUrl}/admin`;
 
   isAdminLoggedIn = signal<boolean>(this.hasValidToken());
 

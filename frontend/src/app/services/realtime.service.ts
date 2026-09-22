@@ -2,6 +2,7 @@ import { Injectable, inject } from '@angular/core';
 import { Subject } from 'rxjs';
 import { MovieEvent } from '../models/movie.model';
 import { CartService } from './cart.service';
+import { environment } from '../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
@@ -21,7 +22,7 @@ export class RealtimeService {
     if (typeof window === 'undefined' || !('EventSource' in window)) return;
 
     try {
-      this.eventSource = new EventSource('http://localhost:8080/api/notifications/stream');
+      this.eventSource = new EventSource(`${environment.apiUrl}/notifications/stream`);
 
       this.eventSource.addEventListener('MOVIE_UPDATE', (event: MessageEvent) => {
         try {

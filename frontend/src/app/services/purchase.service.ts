@@ -3,6 +3,7 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable, tap } from 'rxjs';
 import { CartItem, Purchase } from '../models/movie.model';
 import { ClientIdService } from './client-id.service';
+import { environment } from '../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
@@ -10,7 +11,7 @@ import { ClientIdService } from './client-id.service';
 export class PurchaseService {
   private http = inject(HttpClient);
   private clientIdService = inject(ClientIdService);
-  private readonly API_URL = 'http://localhost:8080/api/purchases';
+  private readonly API_URL = `${environment.apiUrl}/purchases`;
   private readonly PURCHASED_IDS_KEY = 'cinestore_purchased_ids';
 
   // Ensemble réactif des IDs de films achetés par ce navigateur
