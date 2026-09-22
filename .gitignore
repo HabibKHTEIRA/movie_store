@@ -1,0 +1,103 @@
+# =============================================================================
+# Movie Store - .gitignore
+# =============================================================================
+
+# -----------------------------------------------------------------------------
+# Fichiers de données volumineux (TSV IMDb > 100 Mo rejetés par GitHub)
+# -----------------------------------------------------------------------------
+*.tsv
+*.csv
+*.gz
+*.tar
+*.zip
+
+# -----------------------------------------------------------------------------
+# Environnement Python & Cache
+# -----------------------------------------------------------------------------
+venv/
+.venv/
+env/
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+
+# -----------------------------------------------------------------------------
+# Backend Java / Spring Boot / Maven
+# -----------------------------------------------------------------------------
+target/
+**/target/
+*.class
+*.jar
+*.war
+*.ear
+
+# Base de données locale H2 (fichiers générés sur disque)
+backend/data/
+data/
+*.mv.db
+*.trace.db
+
+# -----------------------------------------------------------------------------
+# Frontend Angular / Node.js
+# -----------------------------------------------------------------------------
+node_modules/
+**/node_modules/
+dist/
+**/dist/
+.angular/
+**/.angular/
+.sass-cache/
+out-tsc/
+bazel-out/
+
+# Logs npm / yarn / pnpm
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# -----------------------------------------------------------------------------
+# Fichiers d'environnement & Clés secrètes
+# -----------------------------------------------------------------------------
+.env
+.env.local
+.env.*.local
+*.pem
+*.key
+
+# -----------------------------------------------------------------------------
+# Logs d'application
+# -----------------------------------------------------------------------------
+*.log
+logs/
+
+# -----------------------------------------------------------------------------
+# IDEs & Éditeurs (VSCode, IntelliJ, Eclipse, OS)
+# -----------------------------------------------------------------------------
+.idea/
+*.iml
+*.iws
+*.ipr
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+.history/
+.project
+.classpath
+.settings/
+*.sublime-workspace
+
+# Fichiers systèmes
+.DS_Store
+Thumbs.db
+ehthumbs.db
+
+# Fichiers temporaires
+*.tmp
+*.temp
+*.swp
+*.swo
+*~
