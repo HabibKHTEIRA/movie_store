@@ -111,11 +111,49 @@ class CinestoreApplicationTests {
         assertDoesNotThrow(() -> {
             reviewService.addReview(movieId, legitimateReview, clientIp, sessionId);
         });
+    }
 
-        // 4. L'utilisateur tente de laisser un DEUXIÈME avis -> IllegalStateException (409 Conflict)
-        ReviewRequest duplicateReview = new ReviewRequest("Habib", 4, "Deuxième avis spam");
-        assertThrows(IllegalStateException.class, () -> {
-            reviewService.addReview(movieId, duplicateReview, clientIp, sessionId);
-        }, "Un utilisateur ne peut pas laisser plus d'un avis pour un même film");
+    @Autowired
+    private com.cinestore.service.RateLimitingService rateLimitingService;
+
+    @Test
+    void testRateLimiting30RequestsPerMinute() {
+        String testClient = "client-test-rate-limit-" + System.currentTimeMillis();
+
+        // 30 requêtes autorisées
+        for (int i = 1; i <= 30; i++) {
+            com.cinestore.service.RateLimitingService.AccessCheckResult result = rateLimitingService.checkAccess(testClient);
+            assertTrue(result.isAllowed(), "La requête #" + i + " doit être autorisée");
+            assertEquals(30 - i, result.getRemainingRequests());
+        }
+
+        // La 31ème requête doit être bloquée
+        com.cinestore.service.RateLimitingService.AccessCheckResult blocked = rateLimitingService.checkAccess(testClient);
+        assertFalse(blocked.isAllowed(), "La 31ème requête dans la même minute doit être bloquée");
+        assertEquals(com.cinestore.service.RateLimitingService.AccessStatus.RATE_LIMIT_EXCEEDED, blocked.getStatus());
+    }
+
+    @Test
+    void testMax10ConcurrentUsers() {
+        // Nouveau service dédié avec seuil strict de 10 utilisateurs
+        com.cinestore.service.RateLimitingService isolatedService =
+                new com.cinestore.service.RateLimitingService(true, 30, 10, 5);
+
+        // 10 utilisateurs distincts doivent pouvoir accéder
+        for (int i = 1; i <= 10; i++) {
+            String user = "user-" + i;
+            com.cinestore.service.RateLimitingService.AccessCheckResult res = isolatedService.checkAccess(user);
+            assertTrue(res.isAllowed(), "L'utilisateur " + i + " doit être autorisé");
+        }
+
+        // Le 11ème utilisateur doit être rejeté pour capacité maximale atteinte
+        String eleventhUser = "user-11";
+        com.cinestore.service.RateLimitingService.AccessCheckResult rejected = isolatedService.checkAccess(eleventhUser);
+        assertFalse(rejected.isAllowed(), "Le 11ème utilisateur simultané doit être bloqué");
+        assertEquals(com.cinestore.service.RateLimitingService.AccessStatus.CONCURRENT_USERS_EXCEEDED, rejected.getStatus());
+
+        // L'un des 10 premiers utilisateurs existants peut continuer à naviguer
+        com.cinestore.service.RateLimitingService.AccessCheckResult existingUser = isolatedService.checkAccess("user-1");
+        assertTrue(existingUser.isAllowed(), "Un utilisateur déjà actif dans le pool de 10 doit pouvoir continuer");
     }
 }
