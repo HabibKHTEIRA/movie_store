@@ -3,6 +3,7 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { Review } from '../models/movie.model';
 import { ClientIdService } from './client-id.service';
+import { environment } from '../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
@@ -10,7 +11,7 @@ import { ClientIdService } from './client-id.service';
 export class ReviewService {
   private http = inject(HttpClient);
   private clientIdService = inject(ClientIdService);
-  private readonly API_URL = 'http://localhost:8080/api/reviews';
+  private readonly API_URL = `${environment.apiUrl}/reviews`;
 
   getReviews(movieId: number): Observable<Review[]> {
     return this.http.get<Review[]>(`${this.API_URL}/movie/${movieId}`);
