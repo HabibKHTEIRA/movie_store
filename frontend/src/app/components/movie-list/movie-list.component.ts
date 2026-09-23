@@ -80,7 +80,7 @@ import { MovieCardComponent } from '../movie-card/movie-card.component';
         <!-- État Erreur Serveur -->
         <div class="empty-state" *ngIf="!isLoading && loadError">
           <h3>Impossible de charger les films</h3>
-          <p>Assurez-vous que le serveur backend est bien démarré sur le port 8080.</p>
+          <p>Le backend est en cours de déploiement, veuillez patienter quelques instants.</p>
           <button class="btn-primary" (click)="loadMovies()">Réessayer</button>
         </div>
 

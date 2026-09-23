@@ -1,4 +1,4 @@
-# Movie Store (MS)
+# Movie Store
 
 ## Lancement du Projet
 
@@ -18,7 +18,7 @@ cd frontend
 npm start
 ```
 
-L'application frontend est accessible sur `http://localhost:4200`.
+L'application est accessible sur `http://localhost:4200`.
 
 ---
 
