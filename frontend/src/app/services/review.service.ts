@@ -6,7 +6,7 @@ import { ClientIdService } from './client-id.service';
 import { environment } from '../../environments/environment';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class ReviewService {
   private http = inject(HttpClient);
@@ -17,10 +17,15 @@ export class ReviewService {
     return this.http.get<Review[]>(`${this.API_URL}/movie/${movieId}`);
   }
 
-  addReview(movieId: number, authorName: string, rating: number, comment: string): Observable<Review> {
+  addReview(
+    movieId: number,
+    authorName: string,
+    rating: number,
+    comment: string,
+  ): Observable<Review> {
     const headers = new HttpHeaders({
       'X-Client-Id': this.clientIdService.getClientId(),
-      'Content-Type': 'application/json'
+      'Content-Type': 'application/json',
     });
 
     const body = { authorName, rating, comment };

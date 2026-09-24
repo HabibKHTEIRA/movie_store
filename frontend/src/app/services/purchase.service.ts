@@ -6,7 +6,7 @@ import { ClientIdService } from './client-id.service';
 import { environment } from '../../environments/environment';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class PurchaseService {
   private http = inject(HttpClient);
@@ -44,31 +44,31 @@ export class PurchaseService {
   checkout(items: CartItem[]): Observable<Purchase[]> {
     const headers = new HttpHeaders({
       'X-Client-Id': this.clientIdService.getClientId(),
-      'Content-Type': 'application/json'
+      'Content-Type': 'application/json',
     });
 
     const body = {
-      items: items.map(item => ({
+      items: items.map((item) => ({
         movieId: item.movie.id,
-        quantity: item.quantity
-      }))
+        quantity: item.quantity,
+      })),
     };
 
     return this.http.post<Purchase[]>(this.API_URL, body, { headers }).pipe(
-      tap(purchases => {
-        purchases.forEach(p => this.savePurchasedId(p.movieId));
-      })
+      tap((purchases) => {
+        purchases.forEach((p) => this.savePurchasedId(p.movieId));
+      }),
     );
   }
 
   getMyPurchases(): Observable<Purchase[]> {
     const headers = new HttpHeaders({
-      'X-Client-Id': this.clientIdService.getClientId()
+      'X-Client-Id': this.clientIdService.getClientId(),
     });
     return this.http.get<Purchase[]>(`${this.API_URL}/my-purchases`, { headers }).pipe(
-      tap(purchases => {
-        purchases.forEach(p => this.savePurchasedId(p.movieId));
-      })
+      tap((purchases) => {
+        purchases.forEach((p) => this.savePurchasedId(p.movieId));
+      }),
     );
   }
 }

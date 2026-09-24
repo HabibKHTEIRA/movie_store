@@ -134,6 +134,7 @@ import { ToastService } from '../../services/toast.service';
                       [src]="movieService.getPosterUrl(movie.posterPath, movie.title)"
                       [alt]="movie.title"
                       class="table-thumb"
+                      (error)="onImageError($event, movie.title)"
                     />
                   </td>
                   <td>
@@ -779,5 +780,10 @@ export class AdminComponent implements OnInit {
       },
       error: () => this.toastService.show('Erreur création film.', 'error')
     });
+  }
+
+  onImageError(event: Event, title: string) {
+    const imgElement = event.target as HTMLImageElement;
+    imgElement.src = this.movieService.getPosterUrl(undefined, title);
   }
 }

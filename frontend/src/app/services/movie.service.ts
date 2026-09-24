@@ -6,7 +6,7 @@ import { ClientIdService } from './client-id.service';
 import { environment } from '../../environments/environment';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class MovieService {
   private http = inject(HttpClient);
@@ -23,15 +23,20 @@ export class MovieService {
     inStockOnly = false,
     page = 0,
     size = 20,
-    sort = 'popularity'
+    sort = 'popularity',
   ): Observable<MoviePageResponse> {
     let params = new HttpParams()
       .set('page', page.toString())
       .set('size', size.toString())
       .set('sort', sort);
 
-    if (search && search.trim()) params = params.set('search', search.trim());
-    if (genre && genre !== 'ALL') params = params.set('genre', genre);
+    // Robustesse pour compatibilité maximale avec la base PostgreSQL de production
+    const effectiveSearch = search && search.trim() ? search.trim() : '%';
+    const effectiveGenre = genre && genre !== 'ALL' ? genre : '%';
+
+    params = params.set('search', effectiveSearch);
+    params = params.set('genre', effectiveGenre);
+
     if (year && year > 0) params = params.set('year', year.toString());
     if (minRating && minRating > 0) params = params.set('minRating', minRating.toString());
     if (minPrice && minPrice > 0) params = params.set('minPrice', minPrice.toString());
@@ -43,7 +48,7 @@ export class MovieService {
 
   getMovieDetail(id: number): Observable<MovieDetail> {
     const headers = new HttpHeaders({
-      'X-Client-Id': this.clientIdService.getClientId()
+      'X-Client-Id': this.clientIdService.getClientId(),
     });
     return this.http.get<MovieDetail>(`${this.API_URL}/${id}`, { headers });
   }

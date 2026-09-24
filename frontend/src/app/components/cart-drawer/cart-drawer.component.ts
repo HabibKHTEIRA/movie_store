@@ -45,6 +45,7 @@ import { ToastService } from '../../services/toast.service';
             [src]="movieService.getPosterUrl(item.movie.posterPath, item.movie.title)"
             [alt]="item.movie.title"
             class="item-thumb"
+            (error)="onImageError($event, item.movie.title)"
           />
 
           <div class="item-info">
@@ -444,5 +445,10 @@ export class CartDrawerComponent {
         this.toastService.show(msg, 'error', 'Échec de la commande');
       }
     });
+  }
+
+  onImageError(event: Event, title: string) {
+    const imgElement = event.target as HTMLImageElement;
+    imgElement.src = this.movieService.getPosterUrl(undefined, title);
   }
 }

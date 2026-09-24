@@ -2,7 +2,7 @@ import { Injectable, computed, signal } from '@angular/core';
 import { CartItem, Movie } from '../models/movie.model';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class CartService {
   private readonly STORAGE_KEY = 'cinestore_cart';
@@ -36,14 +36,12 @@ export class CartService {
   }
 
   addToCart(movie: Movie, quantity = 1) {
-    this.cartItems.update(current => {
-      const existing = current.find(item => item.movie.id === movie.id);
+    this.cartItems.update((current) => {
+      const existing = current.find((item) => item.movie.id === movie.id);
       let updated: CartItem[];
       if (existing) {
-        updated = current.map(item =>
-          item.movie.id === movie.id
-            ? { ...item, quantity: item.quantity + quantity }
-            : item
+        updated = current.map((item) =>
+          item.movie.id === movie.id ? { ...item, quantity: item.quantity + quantity } : item,
         );
       } else {
         updated = [...current, { movie, quantity }];
@@ -54,9 +52,9 @@ export class CartService {
   }
 
   updateQuantity(movieId: number, delta: number) {
-    this.cartItems.update(current => {
+    this.cartItems.update((current) => {
       const updated = current
-        .map(item => {
+        .map((item) => {
           if (item.movie.id === movieId) {
             const newQty = item.quantity + delta;
             return newQty > 0 ? { ...item, quantity: newQty } : null;
@@ -71,8 +69,8 @@ export class CartService {
   }
 
   removeFromCart(movieId: number) {
-    this.cartItems.update(current => {
-      const updated = current.filter(item => item.movie.id !== movieId);
+    this.cartItems.update((current) => {
+      const updated = current.filter((item) => item.movie.id !== movieId);
       this.saveCart(updated);
       return updated;
     });
@@ -84,7 +82,7 @@ export class CartService {
   }
 
   toggleCart() {
-    this.isCartOpen.update(open => !open);
+    this.isCartOpen.update((open) => !open);
   }
 
   openCart() {
@@ -96,9 +94,9 @@ export class CartService {
   }
 
   updateMovieRealtime(movieId: number, price?: number, copies?: number) {
-    this.cartItems.update(current => {
+    this.cartItems.update((current) => {
       let changed = false;
-      const updated = current.map(item => {
+      const updated = current.map((item) => {
         if (item.movie.id === movieId) {
           changed = true;
           return {
@@ -106,8 +104,8 @@ export class CartService {
             movie: {
               ...item.movie,
               price: price !== undefined ? price : item.movie.price,
-              copies: copies !== undefined ? copies : item.movie.copies
-            }
+              copies: copies !== undefined ? copies : item.movie.copies,
+            },
           };
         }
         return item;

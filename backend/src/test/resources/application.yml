@@ -1,0 +1,15 @@
+# Configuration isolée dédiée exclusivement aux tests unitaires/intégration Maven
+app:
+  jwt:
+    secret: UnitTestJwtSecretKeyMustBeAtLeast512BitsLongForHmacShaAlgorithmSecurityRequirements2026!
+    expiration-ms: 86400000
+  admin:
+    username: admin
+    password: testpassword123
+  cors:
+    allowed-origins: http://localhost:4200
+  rate-limit:
+    enabled: true
+    requests-per-minute: 30
+    max-concurrent-users: 10
+    user-idle-timeout-minutes: 5

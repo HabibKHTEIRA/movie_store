@@ -35,8 +35,8 @@ public interface MovieRepository extends JpaRepository<Movie, Long> {
 
     // Recherche multi-critères : titre, genre, année exacte, note min, prix min/max, en stock
     @Query("SELECT m FROM Movie m WHERE " +
-           "(:search IS NULL OR LOWER(m.title) LIKE LOWER(CONCAT('%', :search, '%')) OR LOWER(m.genres) LIKE LOWER(CONCAT('%', :search, '%'))) AND " +
-           "(:genre IS NULL OR LOWER(m.genres) LIKE LOWER(CONCAT('%', :genre, '%'))) AND " +
+           "(CAST(:search AS string) IS NULL OR LOWER(m.title) LIKE LOWER(CONCAT('%', CAST(:search AS string), '%')) OR LOWER(m.genres) LIKE LOWER(CONCAT('%', CAST(:search AS string), '%'))) AND " +
+           "(CAST(:genre AS string) IS NULL OR LOWER(m.genres) LIKE LOWER(CONCAT('%', CAST(:genre AS string), '%'))) AND " +
            "(:year IS NULL OR m.year = :year) AND " +
            "(:minRating IS NULL OR m.rating >= :minRating) AND " +
            "(:minPrice IS NULL OR m.price >= :minPrice) AND " +

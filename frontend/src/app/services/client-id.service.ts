@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class ClientIdService {
   private readonly STORAGE_KEY = 'cinestore_client_uuid';

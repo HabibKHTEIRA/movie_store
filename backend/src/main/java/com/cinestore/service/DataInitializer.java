@@ -34,13 +34,7 @@ public class DataInitializer {
         // 1. Nettoyage préventif des doublons éventuels
         cleanupDuplicates();
 
-        long currentCount = movieRepository.count();
-        if (currentCount > 0) {
-            log.info("Base de données CinéStore active ({} films uniques présents).", currentCount);
-            return;
-        }
-
-        log.info("Chargement initial des films IMDb/TMDB dans la base de données...");
+        log.info("Vérification et chargement des films IMDb/TMDB dans la base de données...");
         try {
             ClassPathResource resource = new ClassPathResource("data/movies_seed.json");
             if (!resource.exists()) {
@@ -58,8 +52,21 @@ public class DataInitializer {
                     }
                 }
 
-                movieRepository.saveAll(uniqueMovies.values());
-                log.info("✅ Initialisation réussie : {} films uniques chargés dans la base de données !", uniqueMovies.size());
+                // Insertion uniquement des films du seed non encore présents
+                List<Movie> missingMovies = new ArrayList<>();
+                for (Movie m : uniqueMovies.values()) {
+                    if (!movieRepository.existsByImdbId(m.getImdbId())) {
+                        missingMovies.add(m);
+                    }
+                }
+
+                if (!missingMovies.isEmpty()) {
+                    movieRepository.saveAll(missingMovies);
+                    log.info("✅ Initialisation réussie : {} nouveaux films uniques chargés en base (Total: {}).",
+                            missingMovies.size(), movieRepository.count());
+                } else {
+                    log.info("Base de données CinéStore active et complète ({} films uniques présents).", movieRepository.count());
+                }
             }
         } catch (Exception e) {
             log.error("Erreur lors du chargement des films initiaux : {}", e.getMessage(), e);

@@ -12,7 +12,7 @@ interface AuthResponse {
 }
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class AuthService {
   private http = inject(HttpClient);
@@ -33,19 +33,21 @@ export class AuthService {
     const token = this.getToken();
     return new HttpHeaders({
       'Content-Type': 'application/json',
-      'Authorization': token ? `Bearer ${token}` : ''
+      Authorization: token ? `Bearer ${token}` : '',
     });
   }
 
   login(username: string, password: string): Observable<AuthResponse> {
-    return this.http.post<AuthResponse>(`${this.BASE_ADMIN_URL}/login`, { username, password }).pipe(
-      tap(res => {
-        if (res && res.token) {
-          localStorage.setItem(this.TOKEN_KEY, res.token);
-          this.isAdminLoggedIn.set(true);
-        }
-      })
-    );
+    return this.http
+      .post<AuthResponse>(`${this.BASE_ADMIN_URL}/login`, { username, password })
+      .pipe(
+        tap((res) => {
+          if (res && res.token) {
+            localStorage.setItem(this.TOKEN_KEY, res.token);
+            this.isAdminLoggedIn.set(true);
+          }
+        }),
+      );
   }
 
   logout() {
@@ -55,35 +57,41 @@ export class AuthService {
 
   getAdminStats(): Observable<AdminStats> {
     return this.http.get<AdminStats>(`${this.BASE_ADMIN_URL}/stats`, {
-      headers: this.getAuthHeaders()
+      headers: this.getAuthHeaders(),
     });
   }
 
-  getAdminMovies(search?: string, page = 0, size = 20, sortBy?: string, sortDir?: string): Observable<MoviePageResponse> {
+  getAdminMovies(
+    search?: string,
+    page = 0,
+    size = 20,
+    sortBy?: string,
+    sortDir?: string,
+  ): Observable<MoviePageResponse> {
     let url = `${this.BASE_ADMIN_URL}/movies?page=${page}&size=${size}`;
     if (search) url += `&search=${encodeURIComponent(search)}`;
     if (sortBy) url += `&sortBy=${encodeURIComponent(sortBy)}`;
     if (sortDir) url += `&sortDir=${encodeURIComponent(sortDir)}`;
     return this.http.get<MoviePageResponse>(url, {
-      headers: this.getAuthHeaders()
+      headers: this.getAuthHeaders(),
     });
   }
 
   updateMovie(id: number, movie: Partial<Movie>): Observable<Movie> {
     return this.http.put<Movie>(`${this.BASE_ADMIN_URL}/movies/${id}`, movie, {
-      headers: this.getAuthHeaders()
+      headers: this.getAuthHeaders(),
     });
   }
 
   addMovie(movie: Partial<Movie>): Observable<Movie> {
     return this.http.post<Movie>(`${this.BASE_ADMIN_URL}/movies`, movie, {
-      headers: this.getAuthHeaders()
+      headers: this.getAuthHeaders(),
     });
   }
 
   deleteMovie(id: number): Observable<any> {
     return this.http.delete(`${this.BASE_ADMIN_URL}/movies/${id}`, {
-      headers: this.getAuthHeaders()
+      headers: this.getAuthHeaders(),
     });
   }
 }

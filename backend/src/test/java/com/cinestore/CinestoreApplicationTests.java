@@ -156,4 +156,13 @@ class CinestoreApplicationTests {
         com.cinestore.service.RateLimitingService.AccessCheckResult existingUser = isolatedService.checkAccess("user-1");
         assertTrue(existingUser.isAllowed(), "Un utilisateur déjà actif dans le pool de 10 doit pouvoir continuer");
     }
+
+    @Test
+    void testFindWithFiltersNullParameters() {
+        assertDoesNotThrow(() -> {
+            var page = movieRepository.findWithFilters(null, null, null, null, null, null, false, org.springframework.data.domain.PageRequest.of(0, 10));
+            assertNotNull(page);
+            assertTrue(page.getTotalElements() > 0, "Les films doivent être retournés même avec des filtres nuls");
+        });
+    }
 }

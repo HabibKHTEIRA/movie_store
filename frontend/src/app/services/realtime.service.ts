@@ -5,12 +5,15 @@ import { CartService } from './cart.service';
 import { environment } from '../../environments/environment';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class RealtimeService {
   private cartService = inject(CartService);
   private eventSource: EventSource | null = null;
   private eventSubject = new Subject<MovieEvent>();
+  private reconnectAttempts = 0;
+  private readonly maxReconnectAttempts = 5;
+  private reconnectTimer: ReturnType<typeof setTimeout> | null = null;
 
   public events$ = this.eventSubject.asObservable();
 
@@ -21,8 +24,17 @@ export class RealtimeService {
   private connect() {
     if (typeof window === 'undefined' || !('EventSource' in window)) return;
 
+    if (this.eventSource) {
+      this.eventSource.close();
+      this.eventSource = null;
+    }
+
     try {
       this.eventSource = new EventSource(`${environment.apiUrl}/notifications/stream`);
+
+      this.eventSource.onopen = () => {
+        this.reconnectAttempts = 0;
+      };
 
       this.eventSource.addEventListener('MOVIE_UPDATE', (event: MessageEvent) => {
         try {
@@ -35,15 +47,34 @@ export class RealtimeService {
       });
 
       this.eventSource.onerror = () => {
-        // En cas de perte de connexion, fermer et tenter une reconnexion après 5s
         if (this.eventSource) {
           this.eventSource.close();
           this.eventSource = null;
         }
-        setTimeout(() => this.connect(), 5000);
+
+        // Retry borné avec backoff raisonnable (maximum 5 tentatives) sans boucle infinie
+        if (this.reconnectAttempts < this.maxReconnectAttempts) {
+          this.reconnectAttempts++;
+          const delay = Math.min(2000 * this.reconnectAttempts, 20000);
+          if (this.reconnectTimer) clearTimeout(this.reconnectTimer);
+          this.reconnectTimer = setTimeout(() => this.connect(), delay);
+        } else {
+          console.warn('Flux SSE : limite maximale de reconnexions atteinte.');
+        }
       };
     } catch (e) {
       console.warn('Impossible d’établir la connexion SSE:', e);
+    }
+  }
+
+  disconnect() {
+    if (this.reconnectTimer) {
+      clearTimeout(this.reconnectTimer);
+      this.reconnectTimer = null;
+    }
+    if (this.eventSource) {
+      this.eventSource.close();
+      this.eventSource = null;
     }
   }
 }
