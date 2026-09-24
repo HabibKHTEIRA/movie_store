@@ -48,13 +48,15 @@ public class PurchaseService {
             Movie movie = movieRepository.findById(movieId)
                     .orElseThrow(() -> new NoSuchElementException("Film introuvable avec l'ID " + movieId));
 
-            // Décrémentation atomique au niveau SQL direct : UPDATE ... WHERE copies >= qty
-            int rowsAffected = movieRepository.decrementCopiesAtomically(movieId, qty);
-            if (rowsAffected == 0) {
-                throw new IllegalStateException(
-                        String.format("Désolé, '%s' n'a plus assez de copies disponibles (demandé: %d, disponible: %d).",
-                                movie.getTitle(), qty, movie.getCopies())
-                );
+            // Décrémentation atomique au niveau SQL direct si non déjà réservé lors de la mise au panier
+            if (!request.isAlreadyReserved()) {
+                int rowsAffected = movieRepository.decrementCopiesAtomically(movieId, qty);
+                if (rowsAffected == 0) {
+                    throw new IllegalStateException(
+                            String.format("Désolé, '%s' n'a plus assez de copies disponibles (demandé: %d, disponible: %d).",
+                                    movie.getTitle(), qty, movie.getCopies())
+                    );
+                }
             }
 
             // Récupération de l'état rafraîchi du film pour notification

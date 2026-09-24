@@ -61,6 +61,14 @@ export class MovieService {
     return this.http.get<number[]>(`${this.API_URL}/years`);
   }
 
+  reserveCopies(movieId: number, quantity = 1): Observable<Movie> {
+    return this.http.post<Movie>(`${this.API_URL}/${movieId}/reserve`, { quantity });
+  }
+
+  releaseCopies(movieId: number, quantity = 1): Observable<Movie> {
+    return this.http.post<Movie>(`${this.API_URL}/${movieId}/release`, { quantity });
+  }
+
   getPosterUrl(posterPath?: string, title = 'Cinema'): string {
     if (posterPath && posterPath.trim().length > 2) {
       if (posterPath.startsWith('http')) return posterPath;

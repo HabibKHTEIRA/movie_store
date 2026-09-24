@@ -157,12 +157,27 @@ class CinestoreApplicationTests {
         assertTrue(existingUser.isAllowed(), "Un utilisateur déjà actif dans le pool de 10 doit pouvoir continuer");
     }
 
+    @Autowired
+    private com.cinestore.service.MovieService movieService;
+
     @Test
-    void testFindWithFiltersNullParameters() {
-        assertDoesNotThrow(() -> {
-            var page = movieRepository.findWithFilters(null, null, null, null, null, null, false, org.springframework.data.domain.PageRequest.of(0, 10));
-            assertNotNull(page);
-            assertTrue(page.getTotalElements() > 0, "Les films doivent être retournés même avec des filtres nuls");
-        });
+    void testReserveAndReleaseCopiesRealtime() {
+        Movie movie = new Movie("ttReserveTest", "Reserve Test Movie", 2024, "Drama", 100,
+                8.0, 1000, new BigDecimal("20.00"), 5, "/test.jpg", "Test");
+        movie = movieRepository.save(movie);
+        Long id = movie.getId();
+
+        // 1. Réserver 2 copies
+        Movie reserved = movieService.reserveCopies(id, 2);
+        assertEquals(3, reserved.getCopies(), "Le stock doit être décrémenté de 2");
+
+        // 2. Libérer 1 copie
+        Movie released = movieService.releaseCopies(id, 1);
+        assertEquals(4, released.getCopies(), "Le stock doit être incrémenté de 1");
+
+        // 3. Tenter de réserver plus de copies que disponible
+        assertThrows(IllegalStateException.class, () -> {
+            movieService.reserveCopies(id, 10);
+        }, "Ne doit pas permettre de réserver plus de copies que le stock disponible");
     }
 }

@@ -48,6 +48,7 @@ export class PurchaseService {
     });
 
     const body = {
+      alreadyReserved: true,
       items: items.map((item) => ({
         movieId: item.movie.id,
         quantity: item.quantity,

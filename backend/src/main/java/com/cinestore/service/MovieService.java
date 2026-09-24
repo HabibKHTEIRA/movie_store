@@ -133,4 +133,49 @@ public class MovieService {
     public void deleteMovie(Long id) {
         movieRepository.deleteById(id);
     }
+
+    @Transactional
+    public Movie reserveCopies(Long id, int qty) {
+        if (qty <= 0) {
+            throw new IllegalArgumentException("La quantité doit être supérieure à 0.");
+        }
+        int rows = movieRepository.decrementCopiesAtomically(id, qty);
+        if (rows == 0) {
+            Movie current = movieRepository.findById(id)
+                    .orElseThrow(() -> new NoSuchElementException("Film introuvable avec l'ID " + id));
+            throw new IllegalStateException(String.format("Stock insuffisant pour '%s' (demandé: %d, disponible: %d).",
+                    current.getTitle(), qty, current.getCopies()));
+        }
+
+        Movie refreshed = movieRepository.findById(id).orElseThrow();
+        notificationService.broadcastMovieEvent(new MovieEventDto(
+                "STOCK_CHANGED",
+                refreshed.getId(),
+                refreshed.getTitle(),
+                refreshed.getPrice(),
+                refreshed.getCopies(),
+                String.format("Stock mis à jour pour '%s' : %d copies restantes.",
+                        refreshed.getTitle(), refreshed.getCopies())
+        ));
+        return refreshed;
+    }
+
+    @Transactional
+    public Movie releaseCopies(Long id, int qty) {
+        if (qty <= 0) {
+            throw new IllegalArgumentException("La quantité doit être supérieure à 0.");
+        }
+        movieRepository.incrementCopiesAtomically(id, qty);
+        Movie refreshed = movieRepository.findById(id).orElseThrow();
+        notificationService.broadcastMovieEvent(new MovieEventDto(
+                "STOCK_CHANGED",
+                refreshed.getId(),
+                refreshed.getTitle(),
+                refreshed.getPrice(),
+                refreshed.getCopies(),
+                String.format("Copies remises en stock pour '%s' : %d copies restantes.",
+                        refreshed.getTitle(), refreshed.getCopies())
+        ));
+        return refreshed;
+    }
 }

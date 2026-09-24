@@ -33,6 +33,11 @@ public interface MovieRepository extends JpaRepository<Movie, Long> {
     @Query("UPDATE Movie m SET m.copies = m.copies - :qty WHERE m.id = :id AND m.copies >= :qty")
     int decrementCopiesAtomically(@Param("id") Long id, @Param("qty") int qty);
 
+    // Incrémentation ATOMIQUE absolue au niveau du SGBD (remise en stock) :
+    @Modifying
+    @Query("UPDATE Movie m SET m.copies = m.copies + :qty WHERE m.id = :id")
+    int incrementCopiesAtomically(@Param("id") Long id, @Param("qty") int qty);
+
     // Recherche multi-critères : titre, genre, année exacte, note min, prix min/max, en stock
     @Query("SELECT m FROM Movie m WHERE " +
            "(CAST(:search AS string) IS NULL OR LOWER(m.title) LIKE LOWER(CONCAT('%', CAST(:search AS string), '%')) OR LOWER(m.genres) LIKE LOWER(CONCAT('%', CAST(:search AS string), '%'))) AND " +

@@ -94,4 +94,37 @@ public class MovieController {
         }
         return request.getRemoteAddr();
     }
+
+    @PostMapping("/{id:[0-9]+}/reserve")
+    public ResponseEntity<?> reserveCopies(
+            @PathVariable Long id,
+            @RequestBody(required = false) java.util.Map<String, Integer> body
+    ) {
+        int qty = (body != null && body.containsKey("quantity")) ? body.get("quantity") : 1;
+        try {
+            Movie movie = movieService.reserveCopies(id, qty);
+            return ResponseEntity.ok(movie);
+        } catch (IllegalStateException e) {
+            return ResponseEntity.status(org.springframework.http.HttpStatus.CONFLICT)
+                    .body(java.util.Map.of("error", "STOCK_UNAVAILABLE", "message", e.getMessage()));
+        } catch (java.util.NoSuchElementException e) {
+            return ResponseEntity.status(org.springframework.http.HttpStatus.NOT_FOUND)
+                    .body(java.util.Map.of("error", "NOT_FOUND", "message", e.getMessage()));
+        }
+    }
+
+    @PostMapping("/{id:[0-9]+}/release")
+    public ResponseEntity<?> releaseCopies(
+            @PathVariable Long id,
+            @RequestBody(required = false) java.util.Map<String, Integer> body
+    ) {
+        int qty = (body != null && body.containsKey("quantity")) ? body.get("quantity") : 1;
+        try {
+            Movie movie = movieService.releaseCopies(id, qty);
+            return ResponseEntity.ok(movie);
+        } catch (java.util.NoSuchElementException e) {
+            return ResponseEntity.status(org.springframework.http.HttpStatus.NOT_FOUND)
+                    .body(java.util.Map.of("error", "NOT_FOUND", "message", e.getMessage()));
+        }
+    }
 }
